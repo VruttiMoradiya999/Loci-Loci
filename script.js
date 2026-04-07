@@ -1,0 +1,27 @@
+const express = require("express");
+const socketio = require("socket.io")
+const path = require("path")
+const http = require("http")
+const app = express();
+const port = 3000;
+const server = http.createServer(app)
+const io = socketio(server)
+
+
+
+
+app.set("view engine", "ejs")
+
+app.use(express.static(path.join(__dirname, "public")))
+app.get('/', (req, res) => {
+    res.render("index")
+})
+io.on("connection", (socket) => {
+    socket.on("send-location", (data) => {
+        io.emit("receive-location", { id: socket.id, ...data })
+    })
+})
+
+server.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+}); 
