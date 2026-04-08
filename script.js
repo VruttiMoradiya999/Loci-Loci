@@ -8,6 +8,9 @@ const server = http.createServer(app)
 const io = socketio(server)
 
 
+server.listen(3000, '0.0.0.0', () => {
+    console.log('Server is accessible on the network');
+});
 
 
 app.set("view engine", "ejs")
@@ -20,8 +23,11 @@ io.on("connection", (socket) => {
     socket.on("send-location", (data) => {
         io.emit("receive-location", { id: socket.id, ...data })
     })
+    socket.on("disconnect", () => {
+        io.emit("user-disconnected", socket.id);
+    })
 })
 
-server.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-}); 
+// server.listen(port, () => {
+//     console.log(`Example app listening on port ${port}`);
+// }); 

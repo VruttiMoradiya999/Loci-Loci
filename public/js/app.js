@@ -1,9 +1,14 @@
 const socket = io();
 
+let userName = prompt("Please enter your name:");
+if (!userName || userName.trim() === "") {
+    userName = "Anonymous";
+}
+
 if (navigator.geolocation) {
     navigator.geolocation.watchPosition((Position) => {
         const { latitude, longitude } = Position.coords;
-        socket.emit("send-location", { latitude, longitude })
+        socket.emit("send-location", { latitude, longitude, name: userName })
     },
         (error) => {
             console.error(error);
@@ -26,14 +31,34 @@ const markers = {};
 
 socket.on(
     "receive-location", (data) => {
-        const { id, latitude, longitude } = data;
-        map.setView([latitude, longitude])
+        const { id, latitude, longitude, name } = data;
+        
+        // Only center the map if it's the current user's movement
+        if (id === socket.id) {
+            map.setView([latitude, longitude]);
+        }
         if (markers[id]) {
-            markers[id].setLatLng([latitude, longitude])
+            markers[id].setLatLng([latitude, longitude]);
+            if (name) markers[id].getTooltip().setContent(name);
         }
         else {
-            markers[id] = L.marker([latitude, longitude]).addTo(map)
+            markers[id] = L.marker([latitude, longitude]).addTo(map);
+            if (name) {
+                markers[id].bindTooltip(name, { 
+                    permanent: true, 
+                    direction: 'top',
+                    offset: [0, -10], // Adjusted for better alignment
+                    className: 'custom-tooltip'
+                }).openTooltip();
+            }
         }
     }
 );
+
+socket.on("user-disconnected", (id) => {
+    if (markers[id]) {
+        map.removeLayer(markers[id]);
+        delete markers[id];
+    }
+});
 

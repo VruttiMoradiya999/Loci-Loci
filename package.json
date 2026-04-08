@@ -16,6 +16,7 @@
     "http": "^0.0.1-security",
     "node": "^25.9.0",
     "path": "^0.12.7",
+    "socket.io": "^4.8.3",
     "socketio": "^1.0.0"
   }
 }
