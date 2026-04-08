@@ -32,7 +32,7 @@ const markers = {};
 socket.on(
     "receive-location", (data) => {
         const { id, latitude, longitude, name } = data;
-        
+
         // Only center the map if it's the current user's movement
         if (id === socket.id) {
             map.setView([latitude, longitude]);
@@ -44,8 +44,8 @@ socket.on(
         else {
             markers[id] = L.marker([latitude, longitude]).addTo(map);
             if (name) {
-                markers[id].bindTooltip(name, { 
-                    permanent: true, 
+                markers[id].bindTooltip(name, {
+                    permanent: true,
                     direction: 'top',
                     offset: [0, -10], // Adjusted for better alignment
                     className: 'custom-tooltip'
@@ -55,10 +55,5 @@ socket.on(
     }
 );
 
-socket.on("user-disconnected", (id) => {
-    if (markers[id]) {
-        map.removeLayer(markers[id]);
-        delete markers[id];
-    }
-});
+
 
